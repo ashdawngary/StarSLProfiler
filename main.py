@@ -79,9 +79,7 @@ regexist(univ_ctx, "symbol", trysymbol)
 univ_ctx = handle_define(univ_ctx, ["define-struct", "posn", ["x", "y"]])
 univ_ctx = export_listcomp(univ_ctx)
 
-
-with open("isltest.txt" ,"r") as vkh:
-
+with open("localfun.txt", "r") as vkh:
     data = str(vkh.read())
     vkh.close()
 

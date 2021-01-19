@@ -67,6 +67,9 @@ def evalexpr(gc: Dict, inner_ctxs: List[Dict], code):
             return evalor(gc, inner_ctxs, code)
         elif code[0] == "lambda":
             return constrlam(gc, inner_ctxs, code)
+        elif code[0] == "local":
+            return evallocal(gc, inner_ctxs, code)
+
         else:
             # indexable lambda
             code_eval = list(map(lambda frag: evalexpr(gc, inner_ctxs, frag), code))
@@ -91,6 +94,7 @@ def evalor(gc, lc, andparts):
             return val
     return boolean(False)
 
+
 def evalcond(gc, lc, condparts):
     # (cond [case1] [case2] ... [casen])
     cases = condparts[1:]
@@ -104,6 +108,7 @@ def evalcond(gc, lc, condparts):
             return evalexpr(gc, lc, ansiftrue)
     raise Exception("ran through all cases of cond.  all fail.")
 
+
 def evalif(gc, lc, ifparts):
     # ifparts [if, test, iftrue, iffalse]
     test = ifparts[1]
@@ -114,3 +119,22 @@ def evalif(gc, lc, ifparts):
         return evalexpr(gc, lc, iftrue)
     else:
         return evalexpr(gc, lc, iffalse)
+def pvarlocal(gc: Dict, localcontext: List[Dict], code: List):
+    name = code[1]
+    value = code[2]
+
+    if type(value) == str:
+        return [name, value]
+    else:
+        res = evalexpr(gc, localcontext, value)
+        return [name, res]
+
+def evallocal(gc, lc, localparts):
+    deflist = localparts[1]
+    evxp = localparts[2]
+    new_context = {}
+    # (local [deflist] evalexpr)
+    for defs in deflist:
+        toadd = pvarlocal(gc, lc+[new_context], defs)
+        new_context[toadd[0]] = toadd[1]
+    return evalexpr(gc, lc + [new_context], evxp)

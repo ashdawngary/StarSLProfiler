@@ -42,5 +42,5 @@ def parsefunction(context: Dict, code: List) -> Dict:  # returns context updated
         raise Exception("need a non-zero number of parameters for function: %s" % name)
     if name in context:
         raise Exception("tried to double define function %s" % name)
-    context[name] = lam(context, [], params, body)
+    context[name] = lam(context,[], params, body)
     return context
