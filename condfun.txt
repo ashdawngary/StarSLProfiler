@@ -1,0 +1,6 @@
+(define x (make-posn 3 2))
+(cond [(number? x) (number->string x)]
+      [(boolean? x) (boolean->string x)]
+      [(string? x) x]
+      [(symbol? x) (symbol->string x)]
+      [(posn? x) (string-append "posn of " (number->string (posn-x x)) " and " (number->string (posn-y x)))])
