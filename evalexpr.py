@@ -119,6 +119,8 @@ def evalif(gc, lc, ifparts):
         return evalexpr(gc, lc, iftrue)
     else:
         return evalexpr(gc, lc, iffalse)
+
+
 def pvarlocal(gc: Dict, localcontext: List[Dict], code: List):
     name = code[1]
     value = code[2]
@@ -129,12 +131,13 @@ def pvarlocal(gc: Dict, localcontext: List[Dict], code: List):
         res = evalexpr(gc, localcontext, value)
         return [name, res]
 
+
 def evallocal(gc, lc, localparts):
     deflist = localparts[1]
     evxp = localparts[2]
     new_context = {}
     # (local [deflist] evalexpr)
     for defs in deflist:
-        toadd = pvarlocal(gc, lc+[new_context], defs)
+        toadd = pvarlocal(gc, lc + [new_context], defs)
         new_context[toadd[0]] = toadd[1]
     return evalexpr(gc, lc + [new_context], evxp)

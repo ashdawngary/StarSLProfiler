@@ -79,7 +79,9 @@ regexist(univ_ctx, "symbol", trysymbol)
 univ_ctx = handle_define(univ_ctx, ["define-struct", "posn", ["x", "y"]])
 univ_ctx = export_listcomp(univ_ctx)
 
-with open("localfun.txt", "r") as vkh:
+
+ftorun = "testing/localfun.txt"
+with open(ftorun, "r") as vkh:
     data = str(vkh.read())
     vkh.close()
 
@@ -111,9 +113,3 @@ while len(sourceparse) > 0:
     else:
         print("\n --> %s" % (pttyobj(evalexpr(univ_ctx, [], nxc))))
 
-# for i in univ_ctx:
-#    print(i, univ_ctx[i])
-# print(eval(univ_ctx, [], sourceparse))
-# tests work
-# print(treeify(list("(define k (* 2 (+ 3 a) (add1 temp)))")))
-# print(treeifysrc("(abcdef)"))
