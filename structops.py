@@ -17,6 +17,7 @@ def handle_chkxpect(gc, lc, code):
     else:
         return [False, "[FAIL]", "left: %s right: %s" % (pttyobj(leval), pttyobj(reval))]
 
+
 def handle_chksts(gc, lc, code):
     val = code[1]
     tosatisfy = code[2]
@@ -27,6 +28,7 @@ def handle_chksts(gc, lc, code):
         return [True, "[ OK ]", "Predicate Satisfied."]
     else:
         return [False, "[FAIL]", "Predicate Failed."]
+
 
 def equal(a, b):
     if type(a) == str and type(b) == str:
@@ -59,7 +61,8 @@ def equal(a, b):
 def makemethod(gc, base, extensions):
     gc["make-%s" % base] = export_to_lam(lambda ls: {"type": base, "const": ls})
     for ext in range(0, len(extensions)):
-        gc["%s-%s" % (base, extensions[ext])] = pythoniclam(lambda x, ix=ext: ensure(x, base)["const"][ix])
+        gc["%s-%s" % (base, extensions[ext])] = pythoniclam(lambda x, ix=ext: ensure(x, base)["const"][ix],
+                                                            "%s-%s" % (base, extensions[ext]))
     return gc
 
 
@@ -82,7 +85,10 @@ def tryexplode(optcheck, x):
 
 def regexist(context: dict, name: str, optcheck=None) -> dict:
     if optcheck is None:
-        context[name + "?"] = pythoniclam(lambda x: boolean(type(x) == dict and x["type"] == name))
+        context[name + "?"] = pythoniclam(lambda x: boolean(type(x) == dict and x["type"] == name), name + "?")
     else:
-        context[name + "?"] = pythoniclam(lambda x: boolean(tryexplode(optcheck, x)))
+        context[name + "?"] = pythoniclam(lambda x: boolean(tryexplode(optcheck, x)), name + "?")
     return context
+
+
+equal_exported = pythoniclam(equal, "equal?")

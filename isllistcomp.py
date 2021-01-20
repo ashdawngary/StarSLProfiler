@@ -28,6 +28,6 @@ def export_listcomp(context):
     listcomps = [foldr_src, compose_src, filter_src, map_src, andmap_src, ormap_src, blist_src]
     for comp in listcomps:
         context = handle_define(context, comp)
-    context["apply"] = pythonlamwcontext(apply)
-    context["ztnmi"] = pythoniclam(lambda x: quicklist(list(map(num, list(range(intify(trynum(x)["value"])))))))
+    context["apply"] = pythonlamwcontext(apply, "apply")
+    context["ztnmi"] = pythoniclam(lambda x: quicklist(list(map(num, list(range(intify(trynum(x)["value"])))))), "ztnmi")
     return context

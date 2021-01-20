@@ -20,18 +20,25 @@ class lam:
         return evalexpr(gc, self.localcontext + [lc], self.execode)
 
     def __str__(self):
-        return "[%s input function] (lambda (%s) %s)" % (
-            len(self.ibindings), ' '.join(self.ibindings), softresolve([self.ppgc] + self.localcontext, self.execode))
+        return "(%s (%s) %s)" % (chr(955), ' '.join(self.ibindings), softresolve([self.ppgc] + self.localcontext, self.execode))
+
+    def detailed(self):
+        return "[%s input function] (%s (%s) %s)" % (len(self.ibindings), chr(955), ' '.join(self.ibindings),
+                                                     softresolve([self.ppgc] + self.localcontext, self.execode))
 
 
 def softresolve(contexs, code):
     if type(code) == list:
-        return ppt(list(map(lambda frag: softresolve(contexs, frag), code)))
+        # dont try to resolve functions on the offchance its a lambda -_-
+        return ppt([code[0]] + list(map(lambda frag: softresolve(contexs, frag), code[1:])))
     elif type(code) == str:
         try:
             val = index(list(contexs), code)
-            return ppt(val)
+            # print("mapped: %s to %s"%(code, val))
+            return pttyobj(val)
         except:
+            if code == "lambda":
+                return chr(955)
             return code
 
 
@@ -65,7 +72,7 @@ def evalexpr(gc: Dict, inner_ctxs: List[Dict], code):
             return evaland(gc, inner_ctxs, code)
         elif code[0] == "or":
             return evalor(gc, inner_ctxs, code)
-        elif code[0] == "lambda":
+        elif code[0] == "lambda" or code[0] == chr(955):  # chr 955 is lambda car
             return constrlam(gc, inner_ctxs, code)
         elif code[0] == "local":
             return evallocal(gc, inner_ctxs, code)

@@ -11,7 +11,7 @@ from printing import ppt, pttydesc, pttyobj
 from synparser import treeifysrc
 from strops import lenstr, appstr, substr, strne, strsuff, strpref, strcont, strup, strlo, strgeq, strge, strleq, strle, \
     streq
-from structops import regexist, handle_chkxpect, equal, handle_chksts
+from structops import regexist, handle_chkxpect, equal, handle_chksts, equal_exported
 
 univ_ctx = {
     "=": eq_num,
@@ -45,7 +45,7 @@ univ_ctx = {
     "string-suffix?": strsuff,
     "non-empty-string?": strne,
     "substring": substr,
-    "equal?": equal,
+    "equal?": equal_exported,
     "number->string": num_tostr,
     "symbol->string": sym_tostr,
     "boolean->string": bool_tostr,
@@ -80,12 +80,12 @@ univ_ctx = handle_define(univ_ctx, ["define-struct", "posn", ["x", "y"]])
 univ_ctx = export_listcomp(univ_ctx)
 
 
-ftorun = "testing/localfun.txt"
+ftorun = "testing/symboltest.txt"
 with open(ftorun, "r") as vkh:
     data = str(vkh.read())
     vkh.close()
 
-sourceparse = treeifysrc(data.replace("\n", " ").replace("\t", " ").replace("\r", " "))
+sourceparse = treeifysrc(data)
 print(sourceparse)
 print("starting exec...\n\n\n")
 

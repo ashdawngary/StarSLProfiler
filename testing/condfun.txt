@@ -1,6 +1,9 @@
-(define x (make-posn 3 2))
-(cond [(number? x) (number->string x)]
-      [(boolean? x) (boolean->string x)]
+(define unk (make-posn 3 2))
+;; info function Any -> String
+;; gets the info of a variable.
+(define info (λ(x) (cond [(number? x) (number->string x)]
+      [(boolean? x) (boolean->string x)] ;; boolean case
       [(string? x) x]
       [(symbol? x) (symbol->string x)]
-      [(posn? x) (string-append "posn of " (number->string (posn-x x)) " and " (number->string (posn-y x)))])
+      [(posn? x) (string-append "posn of " (number->string (posn-x x)) " and " (number->string (posn-y x)))])))
+(define sum-lon (lambda (lox) (foldr + 0 lox)))

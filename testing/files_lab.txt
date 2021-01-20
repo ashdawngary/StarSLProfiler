@@ -1,0 +1,212 @@
+; A File is a (make-file String Integer Date String)
+(define-struct file [name size date content])
+; - where name is the name of the file (including extension)
+; - size is the size of the file in bytes
+; - date is the last modified date of the file
+; - and content is the contents of the file
+ 
+; A Date is a (make-date Integer Integer Integer Integer Integer Integer)
+(define-struct date [year month day hours minutes seconds])
+; - where year is the year the file was modified
+; - month is the month the file was modified
+; - day is the day the file was modified
+; - hours is the hour the file was modified
+; - minutes is the minute the file was modified
+; - and seconds is the second the file was modified
+ 
+; A Directory is a (make-dir Symbol [List-of Directory] [List-of File])
+(define-struct dir [name dirs files])
+; - where name is the directory path
+; - dirs is the list of sub-directories in this directory
+; - and files is the list of files in this directory
+;   (not including the ones in sub-directories)
+ 
+
+(define EMPTY-DIR (make-dir 'hopes&dreams '() '()))
+(define CAREER
+  (make-dir
+   'Career
+   (list (make-dir 'CareerApplications
+                   '()
+                   (list (make-file "CoverLetter.doc" 31744
+                                    (make-date 2015 9 20 11 36 25) "")
+                         (make-file "EmploymentApplication.pdf" 231010
+                                    (make-date 2015 10 13 13 10 0) "")))
+         (make-dir 'CareerMyJob
+                   '()
+                   (list (make-file "BackgroundCheck.pdf" 1040138
+                                    (make-date 2016 8 23 10 27 10) "")
+                         (make-file "I9.pdf" 963654
+                                    (make-date 2015 11 20 15 49 45) "")
+                         (make-file "JobOffer.pdf" 507887
+                                    (make-date 2015 11 20 15 49 0) ""))))
+   (list (make-file "References.docx" 11634
+                    (make-date 2016 8 6 9 55 15) "")
+         (make-file "Resume.doc" 34816
+                    (make-date 2016 10 12 13 18 12) "")
+         (make-file "Transcript.doc" 140288
+                    (make-date 2015 9 11 9 3 0) ""))))
+ 
+; file-temp : File -> ?
+(define (file-temp f)
+  (... (file-name f) (file-size f) (date-temp (file-date f)) (file-content f)))
+ 
+; date-temp : Date -> ?
+(define (date-temp d)
+  (... (date-year d) (date-month d) (date-hours d) (date-minutes d) (date-seconds d)))
+ 
+; directory-temp : Directory -> ?
+(define (directory-temp d)
+  (... (dir-name d) (lod-temp (dir-dirs d)) (lof-temp (dir-files d))))
+ 
+; lod-temp : [List-of Directory] -> ?
+(define (lod-temp lod)
+  (cond [(empty? lod) ...]
+        [(cons? lod) (... (directory-temp (first lod)) (lod-temp (rest lod)))]))
+ 
+; lof-temp : [List-of File] -> ?
+(define (lof-temp lof)
+  (cond [(empty? lof) ...]
+        [(cons? lof) (... (file-temp (first lof)) (lof-temp (rest lof)))]))
+
+
+;;file-name-exists? Directory String -> Boolean
+;; does the file exist in the dir
+(define (file-name-exists? dir tar)
+  (local [(define (matches? f) (string=? tar (file-name f)))
+          (define (file-exists? dir2) (or (ormap file-exists? (dir-dirs dir2))
+                                          (ormap matches? (dir-files dir2))))]
+    (file-exists? dir)))
+(check-expect (file-name-exists? EMPTY-DIR  "blah")
+              #f)
+(check-expect (file-name-exists? CAREER "blah") #f)
+(check-expect (file-name-exists? CAREER "I9.pdf") #t)
+
+;; Exercise 5
+
+;;dir-total-size Directory -> Number
+;; gets the total size of the directory
+(define (dir-total-size dir)
+  (foldr + 0 (append (map dir-total-size (dir-dirs dir))
+                     (map file-size (dir-files dir)))))
+
+(define dfile (make-file "a" 1 (make-date 2015 9 20 11 36 25 ) ""))
+(check-expect (dir-total-size EMPTY-DIR) 0)
+(check-expect (dir-total-size (make-dir 'test (list (make-dir 'a '() (list dfile dfile) )
+                                                    (make-dir 'c '() (list dfile dfile)))  (list dfile)))
+              5)
+
+;; Exercise 6
+
+;;file-replace Directory String String -> Directory
+;; replaces all instances of a file with title string src with title string target
+(define (file-replace dir src target)
+  (local [
+          ;;rename-file : File String String -> File
+          ;; Renames the file if it has the given src name to the target name
+          (define (rename-file file)
+            (if (string=? (file-name file) src)
+                (make-file target
+                           (file-size file)
+                           (file-date file)
+                           (file-content file))
+                file))]
+            
+    (make-dir (dir-name dir)
+              (map (λ(d) (file-replace d src target)) (dir-dirs dir))
+              (map rename-file (dir-files dir)))))
+
+(check-expect (file-replace EMPTY-DIR "blah" "foo") EMPTY-DIR)
+(check-expect (file-replace CAREER "blah" "foo") CAREER)
+(check-expect (file-replace CAREER "CoverLetter.doc" "NoMoreCL.pdf")
+              (make-dir
+               'Career
+               (list (make-dir 'CareerApplications
+                               '()
+                               (list (make-file "NoMoreCL.pdf" 31744
+                                                (make-date 2015 9 20 11 36 25) "")
+                                     (make-file "EmploymentApplication.pdf" 231010
+                                                (make-date 2015 10 13 13 10 0) "")))
+                     (make-dir 'CareerMyJob
+                               '()
+                               (list (make-file "BackgroundCheck.pdf" 1040138
+                                                (make-date 2016 8 23 10 27 10) "")
+                                     (make-file "I9.pdf" 963654
+                                                (make-date 2015 11 20 15 49 45) "")
+                                     (make-file "JobOffer.pdf" 507887
+                                                (make-date 2015 11 20 15 49 0) ""))))
+               (list (make-file "References.docx" 11634
+                                (make-date 2016 8 6 9 55 15) "")
+                     (make-file "Resume.doc" 34816
+                                (make-date 2016 10 12 13 18 12) "")
+                     (make-file "Transcript.doc" 140288
+                                (make-date 2015 9 11 9 3 0) ""))))
+
+;; Exercise 7
+
+;; file-size-greater : Directory Number -> [List-of String]
+;; returns a list of file names in the directory tree of d with size at least n
+(define (file-size-greater d n)
+  (foldr append (filter (λ(file) (> (file-size file) n)) (dir-files d))
+         (filter cons? (map (λ(dir) (file-size-greater dir n)) (dir-dirs d)))))
+(check-expect (file-size-greater EMPTY-DIR 50) empty)
+(check-expect (file-size-greater CAREER 100000000) empty)
+(check-expect (file-size-greater CAREER 500000)
+              (list (make-file "BackgroundCheck.pdf" 1040138
+                               (make-date 2016 8 23 10 27 10) "")
+                    (make-file "I9.pdf" 963654
+                               (make-date 2015 11 20 15 49 45) "")
+                    (make-file "JobOffer.pdf" 507887
+                               (make-date 2015 11 20 15 49 0) "")))
+(check-expect (file-size-greater CAREER 230000)
+              (list (make-file "EmploymentApplication.pdf" 231010
+                               (make-date 2015 10 13 13 10 0) "")
+                    (make-file "BackgroundCheck.pdf" 1040138
+                               (make-date 2016 8 23 10 27 10) "")
+                    (make-file "I9.pdf" 963654
+                               (make-date 2015 11 20 15 49 45) "")
+                    (make-file "JobOffer.pdf" 507887
+                               (make-date 2015 11 20 15 49 0) "")))
+
+; A FSC (FileSystemCompotent) is one of:
+; - File
+; - Dir
+ 
+; A Dir is a (make-dir2 Symbol [List-of FSC])
+(define-struct dir2 [name contents])
+
+
+(define afile (make-file "a" 1 (make-date 2015 9 20 11 36 25 ) ""))
+(define bfile (make-file "b" 2 (make-date 2015 9 20 11 36 25 ) ""))
+(define cfile (make-file "c" 3 (make-date 2015 9 20 11 36 25 ) ""))
+(define dfile2 (make-file "d" 4 (make-date 2015 9 20 11 36 25 ) ""))
+(define dir2-1 (make-dir2 'f1 '()))
+(define dir2-2 (make-dir2 'f2 (list afile bfile)))
+(define dir2-3 (make-dir2 'f3 (list dir2-2 cfile)))
+(define dir2-4 (make-dir2 'f4 (list dir2-3 dir2-2 dfile2)))
+
+;num-files/dir Dir -> Number
+; gets the number of files in the dir
+(define (num-files/dir d)
+  (foldr + (length (filter file? (dir2-contents d)))
+         (map num-files/dir (filter dir2? (dir2-contents d)))))
+
+               
+(check-expect (num-files/dir dir2-1) 0)
+(check-expect (num-files/dir dir2-2) 2)
+(check-expect (num-files/dir dir2-3) 3)
+(check-expect (num-files/dir dir2-4) 6)
+
+;;dir->directory Dir -> Directory
+(define (dir->directory dir)
+  (make-dir (dir2-name dir)
+                  (map dir->directory (filter dir2? (dir2-contents dir)))
+                  (filter file? (dir2-contents dir))))
+
+(define dir-1 (make-dir 'f1 '() '()))
+(define dir-2 (make-dir 'f2 '() (list afile bfile)))
+(define dir-3 (make-dir 'f3 (list dir-2) (list cfile)))
+(check-expect (dir->directory dir2-1) dir-1)
+(check-expect (dir->directory dir2-2) dir-2)
+(check-expect (dir->directory dir2-3) dir-3)                             
+          
