@@ -15,8 +15,11 @@ class lam:
     def exec(self, gc, params):
         lc = {}
         for var in self.ibindings:
-            nextp = params.pop(0)
-            lc[var] = nextp
+            try:
+                nextp = params.pop(0)
+                lc[var] = nextp
+            except:
+                raise Exception("failed to resolve parameters for %s"%(self.__str__()))
         return evalexpr(gc, self.localcontext + [lc], self.execode)
 
     def __str__(self):
@@ -131,12 +134,17 @@ def evalif(gc, lc, ifparts):
 def pvarlocal(gc: Dict, localcontext: List[Dict], code: List):
     name = code[1]
     value = code[2]
+    if type(name) == str: # shadowing a variable
 
-    if type(value) == str:
-        return [name, value]
-    else:
-        res = evalexpr(gc, localcontext, value)
-        return [name, res]
+        if type(value) == str:
+            return [name, value]
+        else:
+            res = evalexpr(gc, localcontext, value)
+            return [name, res]
+    elif type(name) == list:
+        body = value
+        return [name[0], lam(gc, localcontext, name[1:], body)]
+
 
 
 def evallocal(gc, lc, localparts):

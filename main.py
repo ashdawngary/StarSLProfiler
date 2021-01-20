@@ -4,7 +4,7 @@ from defines import handle_define
 from evalexpr import evalexpr
 from isllistcomp import export_listcomp
 from listops import sym_eq, sym_tostr, list_len, list_trd, list_snd, list_fst, list_empty, list_iscons, list_isempty, \
-    list_cons, list_rst, list_mklist, list_qlist, list_rev, list_range
+    list_cons, list_rst, list_mklist, list_qlist, list_rev, list_range, list_append
 from numberops import eq_num, min_num, max_num, sqr_num, div_num, mul_num, sub_num, add_num, add1_num, geq_num, ge_num, \
     leq_num, le_num, sqrt_num, num_tostr, modu_num, num_neghuh, num_poshuh, num_zerohuh, num_odd, num_even, sub1_num
 from printing import ppt, pttydesc, pttyobj
@@ -61,6 +61,7 @@ univ_ctx = {
     "empty?": list_isempty,
     "cons?": list_iscons,
     "list": list_qlist,
+    "append": list_append,
     "make-list": list_mklist,
     "reverse": list_rev,
     "even?": num_even,
@@ -80,7 +81,7 @@ univ_ctx = handle_define(univ_ctx, ["define-struct", "posn", ["x", "y"]])
 univ_ctx = export_listcomp(univ_ctx)
 
 
-ftorun = "testing/symboltest.txt"
+ftorun = "testing/files_lab.txt"
 with open(ftorun, "r") as vkh:
     data = str(vkh.read())
     vkh.close()

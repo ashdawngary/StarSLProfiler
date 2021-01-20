@@ -53,7 +53,7 @@ def trynum(maybenum):
         except:
             raise Exception("failed to cast %s to num" % maybenum)
     else:
-        raise Exception("got nonsense in trynum eval: " % maybenum)
+        raise Exception("got nonsense in trynum eval: %s " % maybenum)
 
 
 def tryboolean(maybebool) -> Dict:

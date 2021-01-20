@@ -1,3 +1,4 @@
+(check-expect (length (list 1 2 3 4 5 6)) 6)
 ; A File is a (make-file String Integer Date String)
 (define-struct file [name size date content])
 ; - where name is the name of the file (including extension)
@@ -209,4 +210,4 @@
 (check-expect (dir->directory dir2-1) dir-1)
 (check-expect (dir->directory dir2-2) dir-2)
 (check-expect (dir->directory dir2-3) dir-3)                             
-          
+(check-expect ((compose add1 sub1) 0) 0)
