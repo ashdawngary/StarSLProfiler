@@ -1,4 +1,6 @@
-from typing import Iterator, List
+from typing import Iterator, List, Union
+
+sexpr = Union[str, list]
 
 
 def num(inp):

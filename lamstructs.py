@@ -1,6 +1,7 @@
-from typing import List
+from typing import Dict, List
 
-from evalexpr import evalexpr
+from printing import pttyobj
+from profileNode import Profiler, ResultCustomEval, ResultEvaluated
 
 
 def export_to_lam(execable, name="p-lam"):
@@ -19,8 +20,12 @@ class pythoniclam:
     def __str__(self):
         return self.name
 
-    def exec(self, gc, params):
-        return self.method(*params)
+    def exec(self, gc, params, prof: Profiler):
+        pre_exec = prof.add_event(
+            ResultCustomEval("executing (%s %s)" % (self.name, ' '.join(list(map(pttyobj, params))))))
+        exres = self.method(*params)
+        Profiler(list(pre_exec.getSinks()), ResultEvaluated([self.name] + params, exres))
+        return exres
 
 
 class pythonlistlam:
@@ -31,8 +36,12 @@ class pythonlistlam:
     def __str__(self):
         return self.name
 
-    def exec(self, gc, params):
-        return self.method(params)
+    def exec(self, gc, params, prof: Profiler):
+        pre_exec = prof.add_event(
+            ResultCustomEval("executing (%s %s)" % (self.name, ' '.join(list(map(pttyobj, params))))))
+        exres = self.method(params)
+        Profiler(list(pre_exec.getSinks()), ResultEvaluated([self.name] + params, exres))
+        return exres
 
 
 class pythonlamwcontext:
@@ -43,5 +52,9 @@ class pythonlamwcontext:
     def __str__(self):
         return self.name
 
-    def exec(self, gc, params):
-        return self.method(gc, params)
+    def exec(self, gc: Dict, params: List, prof: Profiler):
+        pre_exec = prof.add_event(
+            ResultCustomEval("executing (%s %s)" % (self.name, ' '.join(list(map(pttyobj, params))))))
+        exres = self.method(gc, params)
+        Profiler(list(pre_exec.getSinks()), ResultEvaluated([self.name] + params, exres))
+        return exres

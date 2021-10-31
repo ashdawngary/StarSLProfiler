@@ -7,3 +7,4 @@
       [(symbol? x) (symbol->string x)]
       [(posn? x) (string-append "posn of " (number->string (posn-x x)) " and " (number->string (posn-y x)))])))
 (define sum-lon (lambda (lox) (foldr + 0 lox)))
+(sum-lon (list 1 2 3 4))

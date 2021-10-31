@@ -1,3 +1,4 @@
+from profileNode import Profiler, genesis, ResultInitated
 from boolops import not_bool, eq_bool, bool_tostr
 from casting import trynum, tryboolean, trystring, trysymbol
 from defines import handle_define
@@ -73,13 +74,13 @@ univ_ctx = {
     "modulo": modu_num,
 }
 
-regexist(univ_ctx, "number", trynum)
-regexist(univ_ctx, "boolean", tryboolean)
-regexist(univ_ctx, "string", trystring)
-regexist(univ_ctx, "symbol", trysymbol)
+regexist(univ_ctx, "number", genesis(), trynum)
+
+regexist(univ_ctx, "boolean", genesis(), tryboolean)
+regexist(univ_ctx, "string", genesis(), trystring)
+regexist(univ_ctx, "symbol", genesis(), trysymbol)
 univ_ctx = handle_define(univ_ctx, ["define-struct", "posn", ["x", "y"]])
 univ_ctx = export_listcomp(univ_ctx)
-
 
 ftorun = "testing/files_lab.txt"
 with open(ftorun, "r") as vkh:
@@ -94,23 +95,25 @@ while len(sourceparse) > 0:
     nxc = sourceparse.pop(0)
     print("%s" % (ppt(nxc)), end="")
     if nxc[0] in ["define", "define-struct"]:
-        univ_ctx = handle_define(univ_ctx, nxc)
+        tempprof = Profiler([], ResultInitated(nxc))
+        univ_ctx = handle_define(univ_ctx, nxc, tempprof)
         if type(nxc[1]) == str and nxc[0] == "define":
-            print("\t\t-- %s holds %s" % (nxc[1], pttydesc(evalexpr(univ_ctx, [], nxc[1]))))
+            print("\t\t-- %s holds %s" % (nxc[1], pttydesc(evalexpr(univ_ctx, [], nxc[1], genesis())))) # we dont care about this profile.
         else:
             print("")
+        # renderTrace(tempprof)
+        # print("profiling res: " + str(tempprof))
     elif nxc[0] == "check-expect":
-        result = handle_chkxpect(univ_ctx, [], nxc)
+        result = handle_chkxpect(univ_ctx, [], nxc, genesis())
         if result[0]:
             print(f"\t\t-- {result[1]} {result[2]}")
         else:
             print(f"\n\t-- {result[1]} {result[2]}")
     elif nxc[0] == "check-satisfied":
-        result = handle_chksts(univ_ctx, [], nxc)
+        result = handle_chksts(univ_ctx, [], nxc, genesis())
         if result[0]:
             print(f"\t\t-- {result[1]} {result[2]}")
         else:
             print(f"\n\t-- {result[1]} {result[2]}")
     else:
         print("\n --> %s" % (pttyobj(evalexpr(univ_ctx, [], nxc))))
-
